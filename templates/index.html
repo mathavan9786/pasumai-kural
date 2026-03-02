@@ -110,17 +110,12 @@
             refreshStats();
         }
 
-        async function generateAlert() {
-            document.getElementById('alert-text').textContent = 'Generating Tamil voice...';
-            const res = await fetch('/api/voice-alert');
-            const data = await res.json();
-            document.getElementById('alert-text').textContent = data.message;
-            const audio = document.getElementById('audio-player');
-            audio.src = '/static/alert.mp3?' + Date.now();
-            audio.style.display = 'block';
-            audio.play();
-            addLog('🔊 Voice alert: ' + data.message);
-        }
+     async function generateAlert() {
+    const audio = document.getElementById('audio-player');
+    audio.src = '/api/voice-alert?' + Date.now();
+    audio.style.display = 'block';
+    audio.play();
+}
 
         function refreshStats() {
             document.getElementById('healthy-count').textContent = Math.floor(Math.random() * 10) + 14;
