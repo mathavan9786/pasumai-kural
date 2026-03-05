@@ -2,7 +2,6 @@ from flask import Flask, jsonify, render_template_string
 from gtts import gTTS
 import random, os, io, base64
 import urllib.request
-import urllib.parse
 import json
 
 app = Flask(__name__)
@@ -10,9 +9,6 @@ app = Flask(__name__)
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
-# ─────────────────────────────────────────
-# Supabase-ல data save பண்ண
-# ─────────────────────────────────────────
 def save_to_supabase(data):
     try:
         url = f"{SUPABASE_URL}/rest/v1/plant_alerts"
@@ -25,29 +21,25 @@ def save_to_supabase(data):
         req.add_header("Content-Type", "application/json")
         req.add_header("apikey", SUPABASE_KEY)
         req.add_header("Authorization", f"Bearer {SUPABASE_KEY}")
-        req.add_header("Prefer", "return=minimal")
-        urllib.request.urlopen(req)
+        req.add_header("Prefer", "return=representation")
+        with urllib.request.urlopen(req) as res:
+            print(f"Saved: {res.read().decode()}")
     except Exception as e:
-        print(f"Supabase save error: {e}")
+        print(f"Save error: {e}")
 
-# ─────────────────────────────────────────
-# Supabase-ல இருந்து history எடு
-# ─────────────────────────────────────────
 def get_history():
     try:
-        url = f"{SUPABASE_URL}/rest/v1/plant_alerts?order=created_at.desc&limit=10"
+        url = f"{SUPABASE_URL}/rest/v1/plant_alerts?select=*&order=created_at.desc&limit=10"
         req = urllib.request.Request(url, method="GET")
         req.add_header("apikey", SUPABASE_KEY)
         req.add_header("Authorization", f"Bearer {SUPABASE_KEY}")
+        req.add_header("Accept", "application/json")
         with urllib.request.urlopen(req) as res:
             return json.loads(res.read().decode())
     except Exception as e:
-        print(f"Supabase fetch error: {e}")
+        print(f"Fetch error: {e}")
         return []
 
-# ─────────────────────────────────────────
-# பயிர் நிலை data
-# ─────────────────────────────────────────
 def get_plant_stress():
     signals = [
         {"stress": "thirst", "level": random.randint(60, 90), "emoji": "💧",
@@ -61,10 +53,6 @@ def get_plant_stress():
     ]
     return random.choice(signals)
 
-
-# ─────────────────────────────────────────
-# HTML Template
-# ─────────────────────────────────────────
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ta">
@@ -74,26 +62,10 @@ HTML_TEMPLATE = """
   <title>பசுமை குரல் 🌱</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
     h1 { color: #2e7d32; font-size: 2rem; margin: 20px 0 4px; }
     p.sub { color: #666; font-size: 0.95rem; margin-bottom: 24px; }
-    .card {
-      background: white;
-      border-radius: 20px;
-      padding: 30px;
-      max-width: 520px;
-      width: 100%;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.12);
-      margin-bottom: 20px;
-    }
+    .card { background: white; border-radius: 20px; padding: 30px; max-width: 520px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.12); margin-bottom: 20px; }
     .card h2 { color: #2e7d32; margin-bottom: 14px; font-size: 1.1rem; }
     .status-box { background: #f1f8e9; border-radius: 14px; padding: 20px; display: none; margin-bottom: 16px; text-align: center; }
     .emoji { font-size: 2.5rem; margin-bottom: 8px; }
@@ -101,11 +73,7 @@ HTML_TEMPLATE = """
     .level-bar-bg { background: #dcedc8; border-radius: 20px; height: 12px; width: 100%; overflow: hidden; margin-top: 12px; }
     .level-bar { height: 100%; border-radius: 20px; background: linear-gradient(90deg, #66bb6a, #ff7043); transition: width 0.6s ease; }
     .level-text { font-size: 0.82rem; color: #888; margin-top: 4px; }
-    .btn {
-      background: #2e7d32; color: white; border: none;
-      padding: 12px 24px; border-radius: 30px; font-size: 0.95rem;
-      cursor: pointer; margin: 6px; transition: background 0.3s;
-    }
+    .btn { background: #2e7d32; color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 0.95rem; cursor: pointer; margin: 6px; transition: background 0.3s; }
     .btn:hover { background: #1b5e20; }
     .btn:disabled { background: #aaa; cursor: not-allowed; }
     .btn-voice { background: #1565c0; }
@@ -114,9 +82,7 @@ HTML_TEMPLATE = """
     .history-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
     .history-table th { background: #e8f5e9; color: #2e7d32; padding: 8px; text-align: left; }
     .history-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; color: #444; }
-    .badge {
-      padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: bold;
-    }
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: bold; }
     .thirst { background: #e3f2fd; color: #1565c0; }
     .pest { background: #fce4ec; color: #c62828; }
     .nutrient { background: #f3e5f5; color: #6a1b9a; }
@@ -127,7 +93,6 @@ HTML_TEMPLATE = """
 <body>
   <h1>🌱 பசுமை குரல்</h1>
   <p class="sub">AI-Powered Plant Health Monitoring | பயிர் உடல்நல கண்காணிப்பு</p>
-
   <div class="card">
     <h2>🌿 பயிர் நிலை</h2>
     <div class="status-box" id="statusBox">
@@ -143,7 +108,6 @@ HTML_TEMPLATE = """
     </div>
     <div class="loading" id="loading">⏳ ஒரு நிமிடம்...</div>
   </div>
-
   <div class="card">
     <h2>📋 கடந்த 10 Alerts (Database History)</h2>
     <button class="btn" onclick="loadHistory()" style="margin-bottom:14px;">🔄 Refresh History</button>
@@ -152,7 +116,6 @@ HTML_TEMPLATE = """
       <tbody id="historyBody"><tr><td colspan="3" style="text-align:center;color:#aaa;">Load பண்ணவும்...</td></tr></tbody>
     </table>
   </div>
-
   <script>
     async function checkStatus() {
       document.getElementById('loading').style.display = 'block';
@@ -164,9 +127,8 @@ HTML_TEMPLATE = """
       document.getElementById('message').innerText = data.message;
       document.getElementById('levelBar').style.width = data.level + '%';
       document.getElementById('levelText').innerText = 'Alert Level: ' + data.level + '%';
-      loadHistory();
+      setTimeout(loadHistory, 1500);
     }
-
     async function getVoice() {
       const btn = document.getElementById('voiceBtn');
       btn.disabled = true; btn.innerText = '⏳ உருவாக்குகிறோம்...';
@@ -186,9 +148,8 @@ HTML_TEMPLATE = """
         document.getElementById('levelBar').style.width = data.level + '%';
         document.getElementById('levelText').innerText = 'Alert Level: ' + data.level + '%';
       }
-      loadHistory();
+      setTimeout(loadHistory, 1500);
     }
-
     async function loadHistory() {
       const res = await fetch('/api/history');
       const rows = await res.json();
@@ -199,23 +160,14 @@ HTML_TEMPLATE = """
       }
       tbody.innerHTML = rows.map(r => {
         const date = new Date(r.created_at).toLocaleString('ta-IN');
-        return `<tr>
-          <td><span class="badge ${r.stress}">${r.stress}</span></td>
-          <td>${r.level}%</td>
-          <td>${date}</td>
-        </tr>`;
+        return `<tr><td><span class="badge ${r.stress}">${r.stress}</span></td><td>${r.level}%</td><td>${date}</td></tr>`;
       }).join('');
     }
-
     loadHistory();
   </script>
 </body>
 </html>
 """
-
-# ─────────────────────────────────────────
-# Routes
-# ─────────────────────────────────────────
 
 @app.route('/')
 def home():
@@ -237,20 +189,22 @@ def voice_alert():
         mp3_buffer.seek(0)
         audio_base64 = base64.b64encode(mp3_buffer.read()).decode('utf-8')
         save_to_supabase(data)
-        return jsonify({
-            "status": "success",
-            "message": data['message'],
-            "stress": data['stress'],
-            "emoji": data['emoji'],
-            "level": data['level'],
-            "audio_base64": audio_base64
-        })
+        return jsonify({"status": "success", "message": data['message'],
+                        "stress": data['stress'], "emoji": data['emoji'],
+                        "level": data['level'], "audio_base64": audio_base64})
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 
 @app.route('/api/history')
 def history():
-    rows = get_history()
-    return jsonify(rows)
+    return jsonify(get_history())
+
+@app.route('/api/debug')
+def debug():
+    return jsonify({
+        "supabase_url": SUPABASE_URL,
+        "key_set": bool(SUPABASE_KEY),
+        "key_prefix": SUPABASE_KEY[:25] if SUPABASE_KEY else "NOT SET"
+    })
 
 app = app
