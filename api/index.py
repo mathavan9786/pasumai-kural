@@ -1,3 +1,5 @@
+Copy
+
 from flask import Flask, jsonify, render_template_string
 from gtts import gTTS
 import random, os, io, base64
@@ -21,9 +23,10 @@ def save_to_supabase(data):
         req.add_header("Content-Type", "application/json")
         req.add_header("apikey", SUPABASE_KEY)
         req.add_header("Authorization", f"Bearer {SUPABASE_KEY}")
-        req.add_header("Prefer", "return=representation")
+        req.add_header("Prefer", "return=minimal")
+        req.add_header("X-Supabase-Api-Version", "2024-01-01")
         with urllib.request.urlopen(req) as res:
-            print(f"Saved: {res.read().decode()}")
+            print(f"Saved OK: {res.status}")
     except Exception as e:
         print(f"Save error: {e}")
 
@@ -208,3 +211,9 @@ def debug():
     })
 
 app = app
+
+
+
+
+
+
