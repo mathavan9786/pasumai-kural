@@ -1,114 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="ta">
 <head>
-
-<title>Pasumai Kural</title>
-
-<style>
-
-body{
-background:#0b1c2c;
-color:white;
-font-family:Arial;
-text-align:center;
-}
-
-.card{
-background:#1c2f4a;
-padding:20px;
-margin:20px;
-border-radius:10px;
-display:inline-block;
-width:250px;
-}
-
-button{
-padding:10px;
-background:green;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <title>Pasumai Kural | Dashboard</title>
+    <style>
+        body { background-color: #0d1b2a; color: white; font-family: sans-serif; margin: 0; padding: 20px; }
+        .header { background: #1b4332; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
+        .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .card { background: #1b263b; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #415a77; }
+        .stress-map { background: #1b263b; margin-top: 20px; padding: 20px; border-radius: 15px; }
+        .plant-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
+        .cell { height: 50px; border-radius: 5px; }
+        .red { background: #ef233c; } .green { background: #52b788; } .orange { background: #ff9e00; }
+        button { padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; background: #415a77; color: white; }
+    </style>
 </head>
-
 <body>
 
-<h1>🌿 Pasumai Kural</h1>
-<p>AI Powered Plant Health Monitoring System</p>
+    <div class="header">
+        <h1>🌿 பசுமை குரல் | Pasumai Kural</h1>
+        <p>AI-Powered Plant Health Monitoring System</p>
+    </div>
 
-<div class="card">
+    <div class="grid-container">
+        <div class="card">
+            <h3>Plant Bio-Signal</h3>
+            <h1 id="signal">45%</h1>
+            <button>NUTRIENT</button>
+            <button onclick="checkSignal()">Check Plant</button>
+        </div>
+        <div class="card">
+            <h3>Tamil Voice Alert</h3>
+            <p>Click to generate alert</p>
+            <button onclick="playAlert()">🔊 Generate Alert</button>
+            <audio id="alertSound" src="/static/alert.mp3"></audio>
+        </div>
+        <div class="card">
+            <h3>Farm Statistics</h3>
+            <p>Total: 24 | ✅ Healthy: 17 | ⚠️ Warning: 3 | 🚨 Critical: 0</p>
+            <button>Refresh</button>
+        </div>
+    </div>
 
-<h3>Plant Bio Signal</h3>
+    <div class="stress-map">
+        <h3>Precision Stress Map - Field View</h3>
+        <div class="plant-grid" id="map">
+            </div>
+    </div>
 
-<h1 id="signal">45%</h1>
+    <script>
+        // Generating Map Cells
+        const map = document.getElementById('map');
+        for(let i=0; i<15; i++) {
+            let cell = document.createElement('div');
+            cell.className = 'cell ' + (i%3==0?'red':i%3==1?'green':'orange');
+            map.appendChild(cell);
+        }
 
-<button onclick="checkPlant()">Check Plant</button>
+        function playAlert() {
+            document.getElementById('alertSound').play();
+        }
 
-</div>
-
-<div class="card">
-
-<h3>Tamil Voice Alert</h3>
-
-<button onclick="playAlert()">Generate Alert</button>
-
-<br><br>
-
-<audio id="audio" src="/static/alert.mp3" controls></audio>
-
-</div>
-
-<div class="card">
-
-<h3>Farm Statistics</h3>
-
-<p>Total : <span id="total">24</span></p>
-<p>Healthy : <span id="healthy">17</span></p>
-<p>Warning : <span id="warning">3</span></p>
-<p>Critical : <span id="critical">0</span></p>
-
-<button onclick="refreshStats()">Refresh</button>
-
-</div>
-
-<script>
-
-function checkPlant(){
-
-fetch('/signal')
-.then(res=>res.json())
-.then(data=>{
-document.getElementById("signal").innerText=data.signal+"%"
-})
-
-}
-
-function refreshStats(){
-
-fetch('/stats')
-.then(res=>res.json())
-.then(data=>{
-
-document.getElementById("total").innerText=data.total
-document.getElementById("healthy").innerText=data.healthy
-document.getElementById("warning").innerText=data.warning
-document.getElementById("critical").innerText=data.critical
-
-})
-
-}
-
-function playAlert(){
-
-document.getElementById("audio").play()
-
-}
-
-</script>
-
+        function checkSignal() {
+            document.getElementById('signal').innerText = Math.floor(Math.random()*100) + "%";
+        }
+    </script>
 </body>
 </html>
