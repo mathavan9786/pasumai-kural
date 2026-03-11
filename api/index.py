@@ -1,4 +1,4 @@
 from app import app
 
-def handler(request):
-    return app(request)
+# Vercel needs the app object to be named 'app'
+app = app
