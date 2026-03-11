@@ -1,33 +1,23 @@
-import os
-import random
 from flask import Flask, render_template, jsonify
+import random
 
-# Path-ah fix panrom so that Vercel can find the files
-template_dir = os.path.abspath('templates')
-static_dir = os.path.abspath('static')
+app = Flask(__name__)
 
-app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+# Route for Home Page
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-@app.route("/")
-def home():
-    print("Home route hit!") 
-    return render_template("index.html")
+# API for Bio-Signal (Returns random 30-80)
+@app.route('/signal')
+def get_signal():
+    return jsonify({"signal": random.randint(30, 80)})
 
-@app.route("/stats")
-def stats():
-    data = {
-        "total": 24,
-        "healthy": 17,
-        "warning": 3,
-        "critical": 0
-    }
-    return jsonify(data)
+# API for Map (Returns list of 15 statuses: 0=Red, 1=Green, 2=Orange)
+@app.route('/get_map_data')
+def get_map_data():
+    data = [random.randint(0, 2) for _ in range(15)]
+    return jsonify({"map": data})
 
-@app.route("/signal")
-def signal():
-    value = random.randint(30, 80)
-    return jsonify({"signal": value})
-
-# Vercel deployment-ku idhu romba mukkiyam
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
