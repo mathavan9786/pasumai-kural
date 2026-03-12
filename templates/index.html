@@ -69,31 +69,60 @@
     </div>
 
     <script>
-        // API Simulation (Backend connect panna fetch use pannu)
-        function updateSignal() {
-            document.getElementById('signal').innerText = Math.floor(Math.random() * 100) + "%";
-        }
+    // 1. REAL VOICE ALERT LOGIC
+    function playAlert() {
+        const audio = document.getElementById('audio');
+        
+        // Browser alert-ah thavirkka idhai use pannu
+        // Audio file path '/static/alert.mp3' correct-ah irukanum
+        audio.play().catch(error => {
+            console.log("Audio play error:", error);
+            alert("Tamil Alert: எச்சரிக்கை! பயிர் வாட்டமாக உள்ளது."); 
+        });
+    }
 
-        function playAlert() {
-            alert("Tamil Alert: எச்சரிக்கை! பயிர் வாட்டமாக உள்ளது.");
-        }
+    // 2. DATA REFRESH & SORTING LOGIC
+    function refreshStats() {
+        // Backend API-la irundhu data fetch pandrom
+        fetch('/stats')
+            .then(res => res.json())
+            .then(data => {
+                // Statistics update pandrom
+                document.getElementById('total').innerText = data.total;
+                document.getElementById('healthy').innerText = data.healthy;
+                document.getElementById('warning').innerText = data.warning;
+                document.getElementById('critical').innerText = data.critical;
 
-        // IMPORTANT: Generating the Grid Map exactly like the first image
+                // Kela irukkura Stress Map-ah data-ku yetha maadhiri refresh pandrom
+                generateFieldMap(data.healthy, data.warning, data.critical);
+            });
+    }
+
+    // 3. DYNAMIC FIELD MAP GENERATOR
+    function generateFieldMap(h, w, c) {
         const map = document.getElementById('map');
-        // Colors corresponding to: Green, Green, Red, Red, Orange, Green...
-        const nodeData = [
-            { c: '#ef4444', i: '💧' }, { c: '#4ade80', i: '🪴' }, { c: '#ef4444', i: '🐛' }, { c: '#ef4444', i: '🐛' }, { c: '#f59e0b', i: '☀️' },
-            { c: '#4ade80', i: '🪴' }, { c: '#4ade80', i: '🪴' }, { c: '#ef4444', i: '💧' }, { c: '#4ade80', i: '🪴' }, { c: '#ef4444', i: '💧' },
-            { c: '#ef4444', i: '🔥' }, { c: '#4ade80', i: '🪴' }, { c: '#4ade80', i: '🪴' }, { c: '#4ade80', i: '🪴' }, { c: '#ef4444', i: '💧' }
-        ];
+        map.innerHTML = ''; // Pazhaya boxes-ah clear pandrom
 
-        nodeData.forEach(item => {
+        // Healthy (Green), Warning (Orange), Critical (Red) boxes-ah create pandrom
+        const nodes = [];
+        for(let i=0; i<h; i++) nodes.push({color: '#4ade80', icon: '🪴'});
+        for(let i=0; i<w; i++) nodes.push({color: '#f59e0b', icon: '☀️'});
+        for(let i=0; i<c; i++) nodes.push({color: '#ef4444', icon: '💧'});
+
+        // Boxes-ah random-ah shuffle panni display pandrom (Sorting feel kidaikkum)
+        nodes.sort(() => Math.random() - 0.5);
+
+        nodes.forEach(item => {
             const div = document.createElement('div');
             div.className = 'node';
-            div.style.background = item.c;
-            div.innerHTML = item.i;
+            div.style.background = item.color;
+            div.innerHTML = item.i || item.icon;
             map.appendChild(div);
         });
-    </script>
+    }
+
+    // Page load aagumbodhu initial-ah map generate panna
+    window.onload = () => generateFieldMap(17, 3, 1);
+</script>
 </body>
 </html>
