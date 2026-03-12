@@ -4,99 +4,96 @@
     <meta charset="UTF-8">
     <title>Pasumai Kural | AI Dashboard</title>
     <style>
-        :root { --bg: #0b1120; --card: #161b22; --green: #4ade80; --orange: #f59e0b; --red: #ef4444; }
+        :root { --bg: #0b1120; --card: #161b22; --green: #238636; --text-green: #4ade80; --orange: #f59e0b; --red: #ef4444; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; }
         
-        .header { background: #1a2e1a; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; border-bottom: 4px solid var(--green); }
+        .header { background: #1a2e1a; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; border: 1px solid var(--text-green); }
         .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .card { background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 20px; text-align: center; }
+        .card { background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 20px; text-align: center; min-height: 250px; }
         
-        .signal-value { font-size: 3rem; font-weight: bold; color: #ffcc00; margin: 10px 0; }
+        .signal-value { font-size: 3.5rem; font-weight: bold; color: #ffcc00; margin: 10px 0; }
         .status-tag { background: var(--orange); color: black; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
         
-        .field-view { background: var(--card); margin-top: 25px; padding: 20px; border-radius: 12px; }
-        .field-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
-        .node { height: 60px; border-radius: 8px; opacity: 0.9; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        /* Stress Map Styling */
+        .field-view { background: var(--card); margin-top: 25px; padding: 20px; border-radius: 12px; border: 1px solid #30363d; }
+        .field-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 15px; }
+        .node { height: 70px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: 0.3s; }
         
-        button { background: #238636; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        button:hover { background: var(--green); color: black; }
+        button { background: var(--green); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { opacity: 0.8; }
+        .refresh-btn { background: #238636; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1 style="margin:0; color: var(--green);">🌿 பசுமை குரல் | Pasumai Kural</h1>
-        <p style="margin:5px 0; opacity: 0.8;">AI-Powered Plant Health Monitoring System</p>
+        <h1 style="margin:0; color: var(--text-green);">🌿 பசுமை குரல் | Pasumai Kural</h1>
+        <p style="margin:5px 0; opacity: 0.8;">AI-Powered Plant Health Monitoring System | பயிர் உடல்நல கண்காணிப்பு</p>
     </div>
 
     <div class="grid-container">
         <div class="card">
-            <h3 style="color: var(--green);">🌱 Plant Bio-Signal</h3>
-            <div style="font-size: 2rem;">🪴</div>
+            <h3 style="color: var(--text-green);">🌱 Plant Bio-Signal</h3>
+            <div style="font-size: 2.5rem;">🪴</div>
             <div class="signal-value" id="signal">45%</div>
             <span class="status-tag">NUTRIENT</span>
-            <button onclick="updateSignal()" style="margin-left: 10px;">Check Plant</button>
+            <button onclick="updateSignal()">🧪 Check Plant</button>
         </div>
 
         <div class="card">
-            <h3 style="color: var(--green);">📢 Tamil Voice Alert</h3>
-            <div style="font-size: 2rem; margin-bottom: 10px;">🎙️</div>
-            <p style="font-size: 0.8rem; opacity: 0.7;">Click to generate alert</p>
-            <button onclick="playAlert()">Generate Alert</button>
-            <audio id="audio" src="/static/alert.mp3" style="width: 100%; margin-top: 15px;"></audio>
+            <h3 style="color: var(--text-green);">📢 Tamil Voice Alert</h3>
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">🎙️</div>
+            <p style="font-size: 0.9rem; opacity: 0.7;">Click to generate alert</p>
+            <button onclick="playAlert()">🔊 Generate Alert</button>
+            <br><br>
+            <audio id="audio" controls style="width: 100%; border-radius: 20px;"></audio>
         </div>
 
         <div class="card">
-            <h3 style="color: var(--green);">📊 Farm Statistics</h3>
-            <div style="text-align: left; display: inline-block;">
-                <p>🌾 Total Plants: <b id="total">24</b></p>
-                <p>✅ Healthy: <b style="color: var(--green);" id="healthy">17</b></p>
-                <p>⚠️ Warning: <b style="color: var(--orange);" id="warning">3</b></p>
-                <p>🚨 Critical: <b style="color: var(--red);" id="critical">0</b></p>
+            <h3 style="color: var(--text-green);">📊 Farm Statistics</h3>
+            <div style="text-align: left; display: inline-block; font-size: 1rem; line-height: 2;">
+                <p style="margin:0;">🌾 Total Plants: <b id="total" style="color:var(--text-green)">24</b></p>
+                <p style="margin:0;">✅ Healthy: <b style="color: var(--text-green);" id="healthy">17</b></p>
+                <p style="margin:0;">⚠️ Warning: <b style="color: var(--orange);" id="warning">3</b></p>
+                <p style="margin:0;">🚨 Critical: <b style="color: var(--red);" id="critical">0</b></p>
             </div>
-            <br><button onclick="refreshStats()" style="margin-top: 10px;">Refresh</button>
+            <br><button class="refresh-btn" onclick="refreshStats()">🔄 Refresh</button>
         </div>
     </div>
 
     <div class="field-view">
-        <h3 style="color: var(--green);">🗺️ Precision Stress Map - Field View</h3>
-        <p style="font-size: 0.8rem; opacity: 0.6;">Red=Critical | Orange=Warning | Green=Healthy</p>
+        <h3 style="color: var(--text-green); margin:0;">🗺️ Precision Stress Map - Field View</h3>
+        <p style="font-size: 0.8rem; opacity: 0.6; margin: 5px 0;">Red = Critical | Orange = Warning | Green = Healthy</p>
         <div class="field-grid" id="map">
             </div>
     </div>
 
     <script>
-        // Backend logic integration
+        // API Simulation (Backend connect panna fetch use pannu)
         function updateSignal() {
-            fetch('/signal').then(res => res.json()).then(data => {
-                document.getElementById('signal').innerText = data.signal + "%";
-            });
-        }
-
-        function refreshStats() {
-            fetch('/stats').then(res => res.json()).then(data => {
-                document.getElementById('total').innerText = data.total;
-                document.getElementById('healthy').innerText = data.healthy;
-                document.getElementById('warning').innerText = data.warning;
-                document.getElementById('critical').innerText = data.critical;
-            });
+            document.getElementById('signal').innerText = Math.floor(Math.random() * 100) + "%";
         }
 
         function playAlert() {
-            document.getElementById('audio').play();
+            alert("Tamil Alert: எச்சரிக்கை! பயிர் வாட்டமாக உள்ளது.");
         }
 
-        // Generate Field Map Nodes
+        // IMPORTANT: Generating the Grid Map exactly like the first image
         const map = document.getElementById('map');
-        const colors = [var(--green), var(--green), var(--red), var(--orange), var(--green)];
-        for(let i=0; i<15; i++){
+        // Colors corresponding to: Green, Green, Red, Red, Orange, Green...
+        const nodeData = [
+            { c: '#ef4444', i: '💧' }, { c: '#4ade80', i: '🪴' }, { c: '#ef4444', i: '🐛' }, { c: '#ef4444', i: '🐛' }, { c: '#f59e0b', i: '☀️' },
+            { c: '#4ade80', i: '🪴' }, { c: '#4ade80', i: '🪴' }, { c: '#ef4444', i: '💧' }, { c: '#4ade80', i: '🪴' }, { c: '#ef4444', i: '💧' },
+            { c: '#ef4444', i: '🔥' }, { c: '#4ade80', i: '🪴' }, { c: '#4ade80', i: '🪴' }, { c: '#4ade80', i: '🪴' }, { c: '#ef4444', i: '💧' }
+        ];
+
+        nodeData.forEach(item => {
             const div = document.createElement('div');
             div.className = 'node';
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            div.style.background = randomColor;
-            div.innerHTML = i % 3 === 0 ? '💧' : '🌱';
+            div.style.background = item.c;
+            div.innerHTML = item.i;
             map.appendChild(div);
-        }
+        });
     </script>
 </body>
 </html>
