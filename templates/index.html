@@ -6,123 +6,109 @@
     <style>
         :root { --bg: #0b1120; --card: #161b22; --green: #238636; --text-green: #4ade80; --orange: #f59e0b; --red: #ef4444; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; }
-        
         .header { background: #1a2e1a; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; border: 1px solid var(--text-green); }
         .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .card { background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 20px; text-align: center; min-height: 250px; }
-        
         .signal-value { font-size: 3.5rem; font-weight: bold; color: #ffcc00; margin: 10px 0; }
         .status-tag { background: var(--orange); color: black; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
-        
-        /* Stress Map Styling */
         .field-view { background: var(--card); margin-top: 25px; padding: 20px; border-radius: 12px; border: 1px solid #30363d; }
-        .field-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 15px; }
-        .node { height: 70px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: 0.3s; }
-        
+        .field-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-top: 15px; }
+        .node { height: 70px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
         button { background: var(--green); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         button:hover { opacity: 0.8; }
-        .refresh-btn { background: #238636; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1 style="margin:0; color: var(--text-green);">🌿 பசுமை குரல் | Pasumai Kural</h1>
-        <p style="margin:5px 0; opacity: 0.8;">AI-Powered Plant Health Monitoring System | பயிர் உடல்நல கண்காணிப்பு</p>
+        <p style="margin:5px 0; opacity: 0.8;">AI-Powered Plant Health Monitoring</p>
     </div>
 
     <div class="grid-container">
         <div class="card">
             <h3 style="color: var(--text-green);">🌱 Plant Bio-Signal</h3>
-            <div style="font-size: 2.5rem;">🪴</div>
             <div class="signal-value" id="signal">45%</div>
-            <span class="status-tag">NUTRIENT</span>
+            <span class="status-tag">NUTRIENT</span><br>
             <button onclick="updateSignal()">🧪 Check Plant</button>
         </div>
 
         <div class="card">
             <h3 style="color: var(--text-green);">📢 Tamil Voice Alert</h3>
-            <div style="font-size: 2.5rem; margin-bottom: 10px;">🎙️</div>
-            <p style="font-size: 0.9rem; opacity: 0.7;">Click to generate alert</p>
+            <div style="font-size: 2.5rem;">🎙️</div>
             <button onclick="playAlert()">🔊 Generate Alert</button>
             <br><br>
-            <audio id="audio" controls style="width: 100%; border-radius: 20px;"></audio>
+            <audio id="audioPlayer">
+                <source src="/static/alert.mp3" type="audio/mpeg">
+            </audio>
         </div>
 
         <div class="card">
             <h3 style="color: var(--text-green);">📊 Farm Statistics</h3>
-            <div style="text-align: left; display: inline-block; font-size: 1rem; line-height: 2;">
-                <p style="margin:0;">🌾 Total Plants: <b id="total" style="color:var(--text-green)">24</b></p>
-                <p style="margin:0;">✅ Healthy: <b style="color: var(--text-green);" id="healthy">17</b></p>
-                <p style="margin:0;">⚠️ Warning: <b style="color: var(--orange);" id="warning">3</b></p>
-                <p style="margin:0;">🚨 Critical: <b style="color: var(--red);" id="critical">0</b></p>
-            </div>
-            <br><button class="refresh-btn" onclick="refreshStats()">🔄 Refresh</button>
+            <div style="text-align: left; display: inline-block;">
+                <p>🌾 Total: <b id="total">24</b></p>
+                <p>✅ Healthy: <b id="healthy">17</b></p>
+                <p>⚠️ Warning: <b id="warning">3</b></p>
+                <p>🚨 Critical: <b id="critical">4</b></p>
+            </div><br>
+            <button onclick="refreshStats()">🔄 Refresh</button>
         </div>
     </div>
 
     <div class="field-view">
-        <h3 style="color: var(--text-green); margin:0;">🗺️ Precision Stress Map - Field View</h3>
-        <p style="font-size: 0.8rem; opacity: 0.6; margin: 5px 0;">Red = Critical | Orange = Warning | Green = Healthy</p>
-        <div class="field-grid" id="map">
-            </div>
+        <h3 style="color: var(--text-green);">🗺️ Precision Stress Map</h3>
+        <div class="field-grid" id="map"></div>
     </div>
 
     <script>
-    // 1. REAL VOICE ALERT LOGIC
-    function playAlert() {
-        const audio = document.getElementById('audio');
-        
-        // Browser alert-ah thavirkka idhai use pannu
-        // Audio file path '/static/alert.mp3' correct-ah irukanum
-        audio.play().catch(error => {
-            console.log("Audio play error:", error);
-            alert("Tamil Alert: எச்சரிக்கை! பயிர் வாட்டமாக உள்ளது."); 
-        });
-    }
+        // 1. Update Bio-Signal
+        function updateSignal() {
+            let newVal = Math.floor(Math.random() * 40) + 40;
+            document.getElementById('signal').innerText = newVal + "%";
+        }
 
-    // 2. DATA REFRESH & SORTING LOGIC
-    function refreshStats() {
-        // Backend API-la irundhu data fetch pandrom
-        fetch('/stats')
-            .then(res => res.json())
-            .then(data => {
-                // Statistics update pandrom
-                document.getElementById('total').innerText = data.total;
-                document.getElementById('healthy').innerText = data.healthy;
-                document.getElementById('warning').innerText = data.warning;
-                document.getElementById('critical').innerText = data.critical;
-
-                // Kela irukkura Stress Map-ah data-ku yetha maadhiri refresh pandrom
-                generateFieldMap(data.healthy, data.warning, data.critical);
+        // 2. Play REAL Tamil Voice Alert
+        function playAlert() {
+            const audio = document.getElementById('audioPlayer');
+            audio.play().catch(e => {
+                alert("Tamil Alert: எச்சரிக்கை! பூச்சி தாக்குதல் கண்டறியப்பட்டது.");
             });
-    }
+        }
 
-    // 3. DYNAMIC FIELD MAP GENERATOR
-    function generateFieldMap(h, w, c) {
-        const map = document.getElementById('map');
-        map.innerHTML = ''; // Pazhaya boxes-ah clear pandrom
+        // 3. Refresh Stats and Update Map
+        function refreshStats() {
+            const h = Math.floor(Math.random() * 10) + 10;
+            const w = Math.floor(Math.random() * 5);
+            const c = Math.floor(Math.random() * 5);
+            
+            document.getElementById('healthy').innerText = h;
+            document.getElementById('warning').innerText = w;
+            document.getElementById('critical').innerText = c;
+            
+            generateMap(h, w, c);
+        }
 
-        // Healthy (Green), Warning (Orange), Critical (Red) boxes-ah create pandrom
-        const nodes = [];
-        for(let i=0; i<h; i++) nodes.push({color: '#4ade80', icon: '🪴'});
-        for(let i=0; i<w; i++) nodes.push({color: '#f59e0b', icon: '☀️'});
-        for(let i=0; i<c; i++) nodes.push({color: '#ef4444', icon: '💧'});
+        // 4. Map Generation Logic
+        function generateMap(h, w, c) {
+            const map = document.getElementById('map');
+            map.innerHTML = '';
+            const items = [];
+            for(let i=0; i<h; i++) items.push({c: '#4ade80', i: '🪴'});
+            for(let i=0; i<w; i++) items.push({c: '#f59e0b', i: '☀️'});
+            for(let i=0; i<c; i++) items.push({c: '#ef4444', i: '💧'});
+            
+            items.sort(() => Math.random() - 0.5);
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'node';
+                div.style.background = item.c;
+                div.innerHTML = item.i;
+                map.appendChild(div);
+            });
+        }
 
-        // Boxes-ah random-ah shuffle panni display pandrom (Sorting feel kidaikkum)
-        nodes.sort(() => Math.random() - 0.5);
-
-        nodes.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'node';
-            div.style.background = item.color;
-            div.innerHTML = item.i || item.icon;
-            map.appendChild(div);
-        });
-    }
-
-    // Page load aagumbodhu initial-ah map generate panna
-    window.onload = () => generateFieldMap(17, 3, 1);
-</script>
+        // Initial Map
+        generateMap(17, 3, 4);
+    </script>
 </body>
 </html>
